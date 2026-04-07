@@ -156,7 +156,8 @@ to get started!
 
 
 ## Table of Contents
-- [Neo4j Graph Database + Chatbot](#neo4j-graph-database--chatbot)
+- [Getting Started with Neo4j](#getting-started-with-neo4j)
+- [Chatbot](#chatbot)
 - [Unique Features of PrimeKG](#unique-features-of-primekg)
 - [Environment Setup](#environment-setup)
 - [Using PrimeKG](#using-primekg)
@@ -166,26 +167,53 @@ to get started!
 - [License](#license)
 
 
-## Neo4j Graph Database + Chatbot
+## Getting Started with Neo4j
 
-This fork adds two components for working with PrimeKG in Neo4j:
+PrimeKG is a natural fit for a graph database. This fork loads the full knowledge graph into **Neo4j**, giving you Cypher queries, graph visualization, and a conversational chatbot out of the box.
 
-- **[Neo4j Loader](neo4j/README.md)** -- Ingests the PrimeKG CSV into a Neo4j graph database with typed nodes, relationships, constraints, and indexes.
-- **[Chatbot](chatbot/README.md)** -- A conversational CLI that answers biomedical questions by generating Cypher queries against the Neo4j graph, powered by Claude and the Neo4j MCP server.
+### Quick start
 
-Quick start:
 ```bash
-cp .env.example .env   # fill in your credentials
+cp .env.example .env   # fill in your Neo4j credentials
 conda create -n primekg python=3.10 -y && conda activate primekg
 
-# Load the graph
+# Load PrimeKG into Neo4j (~129K nodes, ~4M relationships)
 pip install -r neo4j/requirements.txt
 python neo4j/load_primekg_into_neo4j.py
+```
 
-# Run the chatbot
+The loader downloads `kg.csv` from Harvard Dataverse on first run, creates typed nodes (Gene, Disease, Drug, Effect, Anatomy, Pathway, and more), relationships, constraints, and indexes. See [`neo4j/README.md`](neo4j/README.md) for full details.
+
+### Example Cypher queries
+
+Once loaded, explore the graph in Neo4j Browser:
+
+```cypher
+// What genes are associated with Alzheimer's disease?
+MATCH (d:Disease)-[:ASSOCIATED_WITH]->(g:Gene)
+WHERE toLower(d.name) CONTAINS 'alzheimer'
+RETURN d.name, g.name LIMIT 25
+
+// What drugs target BRCA1?
+MATCH (dr:Drug)-[:TARGETS]->(g:Gene {name: 'BRCA1'})
+RETURN dr.name
+
+// Find drugs that target genes associated with breast cancer
+MATCH (d:Disease)-[:ASSOCIATED_WITH]->(g:Gene)<-[:TARGETS]-(dr:Drug)
+WHERE toLower(d.name) CONTAINS 'breast cancer'
+RETURN dr.name, g.name, d.name LIMIT 25
+```
+
+## Chatbot
+
+Ask biomedical questions in plain English and get answers backed by Cypher queries against the Neo4j graph. Built with LangChain, LangGraph, and Claude, using the [Neo4j MCP server](https://github.com/neo4j-contrib/mcp-neo4j) for graph access.
+
+```bash
 pip install -e chatbot/
 primekg-chatbot
 ```
+
+See [`chatbot/README.md`](chatbot/README.md) for setup and example questions.
 
 
 ## Unique Features of PrimeKG
