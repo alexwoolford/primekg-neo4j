@@ -7,7 +7,7 @@ Built with LangChain, LangGraph, and Claude, using the Neo4j MCP server for grap
 ## Prerequisites
 
 - **Neo4j** loaded with PrimeKG (see [`neo4j/README.md`](../neo4j/README.md))
-- **Anthropic API key**
+- **Anthropic API key** ([console.anthropic.com](https://console.anthropic.com/))
 - **uv** installed ([docs](https://docs.astral.sh/uv/getting-started/installation/)) -- used to run the Neo4j MCP server via `uvx`
 
 ## Setup
@@ -30,7 +30,7 @@ pip install -e .
 ## Run
 
 ```bash
-cd /path/to/PrimeKG
+cd /path/to/primekg-neo4j
 primekg-chatbot
 ```
 
@@ -43,6 +43,16 @@ primekg-chatbot
 - Which anatomical structures express the EGFR gene?
 - What exposures are linked to lung cancer?
 - Find drugs that target genes associated with breast cancer
+
+## LangSmith tracing (optional)
+
+To see the agent's reasoning steps and Cypher queries in [LangSmith](https://smith.langchain.com), add these to your `.env`:
+
+```
+LANGSMITH_API_KEY=lsv2_pt_...your-key-here...
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT=primekg-chatbot
+```
 
 ## Architecture
 

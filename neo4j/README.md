@@ -6,7 +6,6 @@ Loads the PrimeKG edge-list CSV into a Neo4j graph database with typed nodes and
 
 - **Neo4j** 5.x+ running locally (or remotely)
 - **Python** 3.10+
-- A dedicated Neo4j database named `primekg` (create via Neo4j Browser: `CREATE DATABASE primekg`)
 
 ## Setup
 
@@ -17,7 +16,13 @@ cp ../.env.example ../.env
 # Edit ../.env with your Neo4j credentials
 ```
 
-2. Create a conda environment and install dependencies:
+2. Create the target database in Neo4j Browser or cypher-shell:
+
+```cypher
+CREATE DATABASE primekg IF NOT EXISTS
+```
+
+3. Create a conda environment and install dependencies:
 
 ```bash
 conda create -n primekg python=3.10 -y
@@ -28,7 +33,7 @@ pip install -r requirements.txt
 ## Run
 
 ```bash
-cd /path/to/PrimeKG
+cd /path/to/primekg-neo4j
 python neo4j/load_primekg_into_neo4j.py
 ```
 
@@ -38,7 +43,7 @@ The script creates constraints, indexes, nodes, and relationships in batches. Ex
 
 ## What gets loaded
 
-**129,375 nodes** across 10 types:
+**129,312 nodes** across 10 types:
 
 | Label | Count | Source |
 |-------|-------|--------|
@@ -53,7 +58,7 @@ The script creates constraints, indexes, nodes, and relationships in batches. Ex
 | Pathway | 2,516 | Reactome |
 | Exposure | 818 | CTD |
 
-**~4 million relationships** across 30 types, including:
+**4,050,064 relationships** across 30 types, including:
 
 | Relationship | Example | Count |
 |-------------|---------|-------|
