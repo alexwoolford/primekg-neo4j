@@ -17,3 +17,20 @@ primeKG_env/
 datasets/data/
 datasets/feature_extraction/drug/drug_bank/parsed/
 datasets/processing_scripts/test.ipynb
+
+# Environment and secrets
+.env
+.env.local
+.mcp.json
+
+# Large data files (download from Harvard Dataverse)
+kg.csv
+
+# Python packaging
+*.egg-info/
+dist/
+build/
+
+# Claude Code settings
+.claude/
+chatbot/.claude/

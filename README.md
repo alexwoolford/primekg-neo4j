@@ -156,6 +156,7 @@ to get started!
 
 
 ## Table of Contents
+- [Neo4j Graph Database + Chatbot](#neo4j-graph-database--chatbot)
 - [Unique Features of PrimeKG](#unique-features-of-primekg)
 - [Environment Setup](#environment-setup)
 - [Using PrimeKG](#using-primekg)
@@ -163,6 +164,28 @@ to get started!
 - [Data Server](#data-server)
 - [Citing PrimeKG](#citing-primekg)
 - [License](#license)
+
+
+## Neo4j Graph Database + Chatbot
+
+This fork adds two components for working with PrimeKG in Neo4j:
+
+- **[Neo4j Loader](neo4j/README.md)** -- Ingests the PrimeKG CSV into a Neo4j graph database with typed nodes, relationships, constraints, and indexes.
+- **[Chatbot](chatbot/README.md)** -- A conversational CLI that answers biomedical questions by generating Cypher queries against the Neo4j graph, powered by Claude and the Neo4j MCP server.
+
+Quick start:
+```bash
+cp .env.example .env   # fill in your credentials
+conda create -n primekg python=3.10 -y && conda activate primekg
+
+# Load the graph
+pip install -r neo4j/requirements.txt
+python neo4j/load_primekg_into_neo4j.py
+
+# Run the chatbot
+pip install -e chatbot/
+primekg-chatbot
+```
 
 
 ## Unique Features of PrimeKG

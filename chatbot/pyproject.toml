@@ -1,0 +1,22 @@
+[project]
+name = "primekg-chatbot"
+version = "0.1.0"
+description = "LangChain ReAct agent for querying the PrimeKG biomedical knowledge graph in Neo4j via MCP"
+requires-python = ">=3.10"
+dependencies = [
+    "langchain-anthropic>=0.3",
+    "langchain-mcp-adapters>=0.2.0",
+    "langgraph>=0.3",
+    "pydantic-settings>=2.0",
+    "python-dotenv>=1.0",
+]
+
+[project.scripts]
+primekg-chatbot = "primekg_chatbot.cli:main"
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
