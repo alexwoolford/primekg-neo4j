@@ -15,6 +15,7 @@ biological scales. This fork loads PrimeKG into **Neo4j** and includes a convers
 
 ## Table of Contents
 - [Getting Started with Neo4j](#getting-started-with-neo4j)
+- [Multi-hop Reasoning](#multi-hop-reasoning)
 - [Chatbot](#chatbot)
 - [Unique Features of PrimeKG](#unique-features-of-primekg)
 - [Citing PrimeKG](#citing-primekg)
@@ -58,6 +59,71 @@ MATCH (d:Disease)-[:ASSOCIATED_WITH]->(g:Gene)<-[:TARGETS]-(dr:Drug)
 WHERE toLower(d.name) CONTAINS 'breast cancer'
 RETURN dr.name, g.name, d.name LIMIT 25
 ```
+
+### Multi-hop reasoning
+
+Graph databases shine when you need to traverse multiple relationship types in a single query. Here are examples with real results from PrimeKG.
+
+**Drug repurposing: Which diabetes drugs target genes associated with Parkinson's disease?**
+
+```cypher
+MATCH (d:Disease)-[:ASSOCIATED_WITH]->(g:Gene)<-[:TARGETS]-(dr:Drug)-[:INDICATED_FOR]->(other:Disease)
+WHERE toLower(d.name) = 'parkinson disease'
+  AND NOT toLower(other.name) CONTAINS 'parkinson'
+RETURN dr.name AS drug, other.name AS currently_indicated_for,
+       collect(DISTINCT g.name) AS parkinson_genes
+ORDER BY size(collect(DISTINCT g.name)) DESC LIMIT 5
+```
+
+| Drug | Currently indicated for | Parkinson-associated genes |
+|------|------------------------|---------------------------|
+| Dopamine | Hypotensive disorder | SOD1, SLC6A3, MAOA, DRD2, DRD1, MAOB, SLC18A2 |
+| Polaprezinc | Peptic ulcer disease | SOD1, IL6, TNF, HMOX1, SOD2, NGF, GPX1 |
+| Chlorpromazine | Schizophrenia | BCHE, DRD2, DRD1, ABCB1, CYP2E1, CYP2D6 |
+| Imipramine | Anxiety disorder | SLC6A3, DRD2, DRD1, ABCB1, CYP2E1, CYP2D6 |
+
+This traverses 4 node types (Disease -> Gene <- Drug -> Disease) in a single query, surfacing drug repurposing candidates that would be nearly impossible to find in a flat table.
+
+**Disease similarity: Which other cancers share the most drug-target genes with breast cancer?**
+
+```cypher
+MATCH (dr:Drug)-[:INDICATED_FOR]->(bc:Disease)
+WHERE toLower(bc.name) CONTAINS 'breast' AND toLower(bc.name) CONTAINS 'cancer'
+WITH dr
+MATCH (dr)-[:TARGETS]->(g:Gene)<-[:ASSOCIATED_WITH]-(other:Disease)
+WHERE NOT toLower(other.name) CONTAINS 'breast'
+RETURN other.name AS disease, count(DISTINCT g) AS shared_genes
+ORDER BY shared_genes DESC LIMIT 5
+```
+
+| Disease | Shared genes |
+|---------|-------------|
+| Colorectal cancer | 28 |
+| Prostate cancer | 27 |
+| Uterine carcinoma | 27 |
+| Liver cancer | 21 |
+| Lung cancer | 19 |
+
+**What biological processes do rheumatoid arthritis drugs act on?**
+
+```cypher
+MATCH (dr:Drug)-[:INDICATED_FOR]->(d:Disease {name: 'rheumatoid arthritis'})
+MATCH (dr)-[:TARGETS]->(g:Gene)<-[:BP_INVOLVES]-(bp:BiologicalProcess)
+WHERE toLower(bp.name) CONTAINS 'inflammat' OR toLower(bp.name) CONTAINS 'immune'
+RETURN bp.name AS biological_process, count(DISTINCT dr) AS drug_count
+ORDER BY drug_count DESC LIMIT 5
+```
+
+| Biological process | Drugs targeting it |
+|-------------------|-------------------|
+| Inflammatory response | 47 |
+| Regulation of inflammatory response | 39 |
+| Regulation of neuroinflammatory response | 30 |
+| Innate immune response | 17 |
+| Positive regulation of inflammatory response | 15 |
+
+This traverses Drug -> Gene -> BiologicalProcess, revealing that RA drugs collectively target genes involved in 47 distinct inflammatory and immune processes.
+
 
 ## Chatbot
 
