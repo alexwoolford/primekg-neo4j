@@ -18,7 +18,7 @@ pip install -r updated_requirements.txt
 conda env create --name PrimeKG --file=environment.yml
 ```
 
-Key dependencies: pandas, numpy, scikit-learn, torch, transformers, goatools, igraph, scrapy, lxml.
+Key dependencies: pandas, numpy, scikit-learn, torch, transformers, goatools, scrapy, lxml.
 
 The `setup.sh` and `setup_jupyter.sh` scripts assume the Harvard O2 HPC cluster (module load, specific paths). Adapt for local use.
 
@@ -69,24 +69,6 @@ Additional notebooks:
 - **Edge schema**: Every edge is represented as a row with `(x_id, x_type, x_name, x_source, relation, display_relation, y_id, y_type, y_name, y_source)`. The `clean_edges()` function in `build_graph.ipynb` enforces this.
 - **`scripts/utils.py`**: Shared utilities for reading/writing gzipped JSON and GMT files. Used by OMIM processing.
 - **Feature extraction** (`datasets/feature_extraction/`): Extracts text descriptions for diseases (Mayo Clinic, Orphanet) and drugs (DrugBank). These are separate from the graph structure.
-
-## Using PrimeKG Without Building
-
-Download the pre-built CSV directly:
-```bash
-wget -O kg.csv https://dataverse.harvard.edu/api/access/datafile/6180620
-```
-
-Or use community dataloaders:
-```python
-# PyTDC
-from tdc.resource import PrimeKG
-data = PrimeKG(path='./data')
-
-# PyKEEN
-import pykeen.datasets
-pykeen.datasets.has_dataset('primekg')
-```
 
 ## Case Study
 
